@@ -8,12 +8,14 @@ import org.springframework.batch.core.repository.JobRepository
 import org.springframework.batch.core.step.builder.StepBuilder
 import org.springframework.batch.repeat.RepeatStatus
 import org.springframework.context.annotation.Bean
+import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Import
 import org.springframework.transaction.PlatformTransactionManager
 import java.util.concurrent.atomic.AtomicInteger
 
-@Import(BatchConfig::class)
-class SystemTerminationConfig(
+//@Import(BatchConfig::class)
+@Configuration
+open class SystemTerminationConfig(
     private val jobRepository: JobRepository,
     private val transactionManager: PlatformTransactionManager
 ) {
@@ -24,7 +26,7 @@ class SystemTerminationConfig(
     // JobBuilder는 스프링 5.x 이상부터 생성자 방식으로 변경됨
     // jobRepository를 생성자 주입 받아서 사용한다.
     @Bean
-    fun systemTerminationSimulationJob(): Job {
+    open fun systemTerminationSimulationJob(): Job {
         return JobBuilder("systemTerminationSimulationJob", jobRepository)
             .start(enterWorldStep())
             .next(meetNPCStep())
@@ -34,7 +36,7 @@ class SystemTerminationConfig(
     }
 
     @Bean
-    fun enterWorldStep(): Step{
+    open fun enterWorldStep(): Step{
         return StepBuilder("enterWorldStep", jobRepository)
             .tasklet({contribution, chunkContext ->
                 println("Entering the world... 접속 완료")
@@ -44,7 +46,7 @@ class SystemTerminationConfig(
     }
 
     @Bean
-    fun meetNPCStep(): Step{
+    open fun meetNPCStep(): Step{
         return StepBuilder("meetNPCStep", jobRepository)
             .tasklet({contribution, chunkContext ->
                 println("Meeting NPC... NPC와 대화 완료")
@@ -55,7 +57,7 @@ class SystemTerminationConfig(
     }
 
     @Bean
-    fun defeatProcessStep(): Step {
+    open fun defeatProcessStep(): Step {
         return StepBuilder("defeatProcessStep", jobRepository)
             .tasklet({contribution, chunkContext ->
                 var terminated = processKilled.incrementAndGet()
@@ -71,11 +73,10 @@ class SystemTerminationConfig(
     }
 
     @Bean
-    fun completeQuestStep(): Step {
+    open fun completeQuestStep(): Step {
         return StepBuilder("completeQuestStep", jobRepository)
             .tasklet({contribution, chunkContext ->
                 println("Quest Completed! 퀘스트 완료!")
-                println("좀비 프로세스 ")
                 RepeatStatus.FINISHED
             }, transactionManager)
             .build()
