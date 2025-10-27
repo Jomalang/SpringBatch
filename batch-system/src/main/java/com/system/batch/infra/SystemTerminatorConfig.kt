@@ -47,7 +47,7 @@ open class SystemTerminatorConfig {
     @Bean
     @StepScope
     open fun terminatorTasklet(
-        @Value("#{jobParameters['terminationId']}") terminatorId: String,
+        @Value("#{jobParameters['terminatorId']}") terminatorId: String,
         @Value("#{jobParameters['targetCount']}") targetCount: Int
     ): Tasklet = Tasklet {_, _ ->
             log.info("시스템 종결자 정보:")
